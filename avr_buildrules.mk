@@ -1,5 +1,7 @@
-# Override is only needed by avr-lib build system.
+CC             = avr-gcc
+AR			   = avr-ar
 
+# Override is only needed by avr-lib build system.
 override CFLAGS        = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) $(DEFS)
 override LDFLAGS       = -Wl,-Map,$(PRG).map
 
@@ -7,6 +9,11 @@ OBJCOPY        = avr-objcopy
 OBJDUMP        = avr-objdump
 
 all: $(PRG).elf lst text eeprom
+
+lib: $(addsuffix .a,$(addprefix lib,$(PRG)))
+	
+%.a: $(OBJ)
+	$(AR) rcs $@ $^
 
 $(PRG).elf: $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -16,7 +23,7 @@ $(PRG).elf: $(OBJ)
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
-	rm -rf *.o $(PRG).elf *.eps *.png *.pdf *.bak 
+	rm -rf *.o $(PRG).elf *.eps *.png *.pdf *.bak *.a
 	rm -rf *.lst *.map $(EXTRA_CLEAN_FILES)
 
 lst:  $(PRG).lst
